@@ -40,67 +40,97 @@ function Dashboard() {
     const expenseDate = new Date(expense.date);
     return expenseDate >= weekAgo && expenseDate <= today;
   });
+
   const thisWeekAmount = thisWeekExpenses.reduce(
     (total, expense) => total + expense.amount,
     0
   );
 
+  // 4. Bugün (today)
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0); // Günün başı
+  const todayEnd = new Date(todayStart);
+  todayEnd.setDate(todayEnd.getDate() + 1); // Yarın başı
+
+  const todayExpenses = expenses.filter(expense => {
+    const expenseDate = new Date(expense.date);
+    return expenseDate >= todayStart && expenseDate < todayEnd;
+  });
+
+  const todayAmount = todayExpenses.reduce(
+    (total, expense) => total + expense.amount,
+    0
+  );
+
   return (
-  <div style={styles.container}>
-    <h1 style={styles.title}>Dashboard</h1>
-    
-    {/* Özet Kartları */}
-    <div style={styles.statsContainer}>
-      {/* Toplam */}
-      <div style={styles.statCard}>
-        <div style={styles.statIcon}>💰</div>
-        <div style={styles.statInfo}>
-          <p style={styles.statLabel}>Toplam Harcama</p>
-          <p style={styles.statAmount}>{totalExpense.toFixed(2)} ₺</p>
-          <p style={styles.statCount}>{expenses.length} harcama</p>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Dashboard</h1>
+
+      {/* Özet Kartları */}
+      <div style={styles.statsContainer}>
+        {/* Toplam */}
+        <div style={styles.statCard}>
+          <div style={styles.statIcon}>💰</div>
+          <div style={styles.statInfo}>
+            <p style={styles.statLabel}>Toplam Harcama</p>
+            <p style={styles.statAmount}>{totalExpense.toFixed(2)} ₺</p>
+            <p style={styles.statCount}>{expenses.length} harcama</p>
+          </div>
+        </div>
+
+        {/* Bu Ay */}
+        <div style={styles.statCard}>
+          <div style={styles.statIcon}>📅</div>
+          <div style={styles.statInfo}>
+            <p style={styles.statLabel}>Bu Ay</p>
+            <p style={styles.statAmount}>{thisMonthAmount.toFixed(2)} ₺</p>
+            <p style={styles.statCount}>{thisMonthExpenses.length} harcama</p>
+          </div>
+        </div>
+
+        {/* Bu Hafta */}
+        <div style={styles.statCard}>
+          <div style={styles.statIcon}>📊</div>
+          <div style={styles.statInfo}>
+            <p style={styles.statLabel}>Bu Hafta</p>
+            <p style={styles.statAmount}>{thisWeekAmount.toFixed(2)} ₺</p>
+            <p style={styles.statCount}>{thisWeekExpenses.length} harcama</p>
+          </div>
+        </div>
+
+        {/* BUGÜN */}
+        <div style={{
+          ...styles.statCard,
+          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        }}>
+          <div style={styles.statIcon}>📅</div>
+          <div style={styles.statInfo}>
+            <p style={styles.statLabel}>Bugün</p>
+            <p style={styles.statAmount}>{todayAmount.toFixed(2)} ₺</p>
+            <p style={styles.statCount}>{todayExpenses.length} harcama</p>
+          </div>
         </div>
       </div>
-      
-      {/* Bu Ay */}
-      <div style={styles.statCard}>
-        <div style={styles.statIcon}>📅</div>
-        <div style={styles.statInfo}>
-          <p style={styles.statLabel}>Bu Ay</p>
-          <p style={styles.statAmount}>{thisMonthAmount.toFixed(2)} ₺</p>
-          <p style={styles.statCount}>{thisMonthExpenses.length} harcama</p>
-        </div>
-      </div>
-      
-      {/* Bu Hafta */}
-      <div style={styles.statCard}>
-        <div style={styles.statIcon}>📊</div>
-        <div style={styles.statInfo}>
-          <p style={styles.statLabel}>Bu Hafta</p>
-          <p style={styles.statAmount}>{thisWeekAmount.toFixed(2)} ₺</p>
-          <p style={styles.statCount}>{thisWeekExpenses.length} harcama</p>
-        </div>
+
+      {/* Son Harcamalar Başlık */}
+      <h2 style={styles.sectionTitle}>Son Harcamalar</h2>
+
+      {/* Harcama Listesi */}
+      <div style={styles.expenseList}>
+        {expenses.length === 0 ? (
+          <p style={styles.noExpenses}>Henüz harcama yok. Lütfen harcama ekleyin.</p>
+        ) : (
+          expenses.map((expense) => (
+            <ExpenseCard
+              key={expense.id}
+              expense={expense}
+              onDelete={handleDelete}
+            />
+          ))
+        )}
       </div>
     </div>
-    
-    {/* Son Harcamalar Başlık */}
-    <h2 style={styles.sectionTitle}>Son Harcamalar</h2>
-    
-    {/* Harcama Listesi */}
-    <div style={styles.expenseList}>
-      {expenses.length === 0 ? (
-        <p style={styles.noExpenses}>Henüz harcama yok. Lütfen harcama ekleyin.</p>
-      ) : (
-        expenses.map((expense) => (
-          <ExpenseCard 
-            key={expense.id} 
-            expense={expense}
-            onDelete={handleDelete}
-          />
-        ))
-      )}
-    </div>
-  </div>
-);
+  );
 }
 
 export default Dashboard;
