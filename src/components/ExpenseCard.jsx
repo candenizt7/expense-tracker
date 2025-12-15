@@ -1,4 +1,9 @@
+import { useState } from "react";
+
 function ExpenseCard({ expense, onDelete }) {
+    const [isHovered, setIsHovered] = useState(false);
+    const [isDeleteHovered, setIsDeleteHovered] = useState(false);
+
     // Kategori bilgilerini al
     const getCategoryInfo = (category) => {
         const categories = {
@@ -26,8 +31,24 @@ function ExpenseCard({ expense, onDelete }) {
         });
     };
 
+    // Kategori rengine göre kart arka planı
+    const cardStyle = {
+        ...styles.card,
+        background: `linear-gradient(135deg, ${categoryInfo.color}15 0%, ${categoryInfo.color}05 100%)`,
+        borderLeft: `4px solid ${categoryInfo.color}`
+    };
+
     return (
-        <div style={styles.card}>
+        <div style={{
+            ...cardStyle,
+            transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+            boxShadow: isHovered
+                ? `0 8px 16px rgba(0, 0, 0, 0.12)`
+                : '0 1px 3px rgba(0, 0, 0, 0.08)',
+        }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
             <div style={styles.header}>
                 <div style={styles.categoryBadge}>
                     <span style={styles.categoryIcon}>{categoryInfo.icon}</span>
@@ -45,7 +66,14 @@ function ExpenseCard({ expense, onDelete }) {
 
             <button
                 onClick={() => onDelete(expense.id)}
-                style={styles.deleteButton}
+                style={{
+                    ...styles.deleteButton,
+                    background: isDeleteHovered ? '#fee2e2' : 'transparent',
+                    color: isDeleteHovered ? '#dc2626' : '#9ca3af',
+                    transform: isDeleteHovered ? 'scale(1.1)' : 'scale(1)',
+                }}
+                onMouseEnter={() => setIsDeleteHovered(true)}
+                onMouseLeave={() => setIsDeleteHovered(false)}
             >
                 🗑️
             </button>
@@ -107,13 +135,17 @@ const styles = {
         margin: 0,
     },
     deleteButton: {
-        background: '#fee2e2',
+        background: 'transparent',
         border: 'none',
         borderRadius: '8px',
-        padding: '8px 12px',
+        padding: '8px',
         fontSize: '18px',
         cursor: 'pointer',
-        transition: 'all 0.2s',
+        transition: 'all 0.3s',
+        color: '#9ca3af',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 };
 
