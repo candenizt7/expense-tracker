@@ -1,8 +1,10 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { ExpenseContext } from "../context/ExpenseContext";
 
-function ExpenseForm() {
-    const { addExpense } = useContext(ExpenseContext);
+function ExpenseForm({ expenseToEdit = null }) {
+    const { addExpense, updateExpense } = useContext(ExpenseContext);
+    const navigate = useNavigate();
 
     const [amount, setAmount] = useState("");
     const [description, setDescription] = useState("");
@@ -11,23 +13,43 @@ function ExpenseForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        const newExpense = {
-            title: description,
-            amount: parseFloat(amount),
-            description: description,
-            category: category,
-            date: date
-        };
-        addExpense(newExpense);
-        alert("Harcama başarıyla eklendi!");
 
-        // Formu sıfırla
-        setAmount("");
-        setDescription("");
-        setCategory("yemek");
-        setDate("");
-        };
+        if (expenseToEdit) {
+            // Güncelleme işlemi
+            const updatedExpense = {
+                ...expenseToEdit,
+                amount: parseFloat(amount),
+                description: description,
+                category: category,
+                date: date,
+            };
+            updateExpense(updatedExpense);
+            alert("Harcama başarıyla güncellendi!");
+        } else {
+            // Yeni ekleme modu
+            const newExpense = {
+                title: description,
+                amount: parseFloat(amount),
+                category: category,
+                date: date,
+                description: description,
+            };
+            addExpense(newExpense);
+            alert("Harcama başarıyla eklendi! ✅");
+        }
+
+        // Dashbord'a dön
+        navigate("/");
+    };
+
+    useEffect(() => {
+        if (expenseToEdit) {
+            setAmount(expenseToEdit.amount.toString());
+            setDescription(expenseToEdit.description);
+            setCategory(expenseToEdit.category);
+            setDate(expenseToEdit.date);
+        }
+    }, [expenseToEdit]);
 
     return (
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -43,7 +65,7 @@ function ExpenseForm() {
                     required
                 />
             </div>
-            
+
             <div style={styles.formGroup}>
                 <label style={styles.label}>Kategori</label>
                 <select
@@ -62,7 +84,7 @@ function ExpenseForm() {
                     <option value="diğer">💰 Diğer</option>
                 </select>
             </div>
-            
+
             <div style={styles.formGroup}>
                 <label style={styles.label}>Açıklama</label>
                 <input
@@ -74,7 +96,7 @@ function ExpenseForm() {
                     required
                 />
             </div>
-            
+
             <div style={styles.formGroup}>
                 <label style={styles.label}>Tarih</label>
                 <input
@@ -85,9 +107,9 @@ function ExpenseForm() {
                     required
                 />
             </div>
-            
+
             <button type="submit" style={styles.button}>
-                ➕ Harcama Ekle
+                {expenseToEdit ? '💾 Güncelle' : '➕ Harcama Ekle'}
             </button>
         </form>
     );

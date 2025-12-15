@@ -1,14 +1,22 @@
 import ExpenseForm from '../components/ExpenseForm';
+import { useLocation } from 'react-router-dom';
 
 function AddExpense() {
+  const location = useLocation();
+  const expenseToEdit = location.state?.expenseToEdit || null;
+
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h1 style={styles.title}>Yeni Harcama Ekle</h1>
-        <p style={styles.subtitle}>Harcama bilgilerinizi girin</p>
+        <h1 style={styles.title}>
+          {expenseToEdit ? 'Harcamayı Düzenle' : 'Yeni Harcama Ekle'}
+        </h1>
+        <p style={styles.subtitle}>
+          {expenseToEdit ? 'Harcama bilgilerini güncelleyin' : 'Harcama bilgilerinizi girin'}
+        </p>
       </div>
       
-      <ExpenseForm />
+      <ExpenseForm expenseToEdit={expenseToEdit} />
     </div>
   );
 }

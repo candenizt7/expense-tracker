@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function ExpenseCard({ expense, onDelete }) {
+    const navigate = useNavigate();
     const [isHovered, setIsHovered] = useState(false);
     const [isDeleteHovered, setIsDeleteHovered] = useState(false);
+    const [isEditHovered, setIsEditHovered] = useState(false);
 
     // Kategori bilgilerini al
     const getCategoryInfo = (category) => {
@@ -29,6 +32,10 @@ function ExpenseCard({ expense, onDelete }) {
             month: 'long',
             year: 'numeric'
         });
+    };
+
+    const handleEdit = () => {
+        navigate('/add', { state: { expenseToEdit: expense } });
     };
 
     // Kategori rengine göre kart arka planı
@@ -64,19 +71,36 @@ function ExpenseCard({ expense, onDelete }) {
                 <p style={styles.date}>{formatDate(expense.date)}</p>
             </div>
 
-            <button
-                onClick={() => onDelete(expense.id)}
-                style={{
-                    ...styles.deleteButton,
-                    background: isDeleteHovered ? '#fee2e2' : 'transparent',
-                    color: isDeleteHovered ? '#dc2626' : '#9ca3af',
-                    transform: isDeleteHovered ? 'scale(1.1)' : 'scale(1)',
-                }}
-                onMouseEnter={() => setIsDeleteHovered(true)}
-                onMouseLeave={() => setIsDeleteHovered(false)}
-            >
-                🗑️
-            </button>
+            {/* Butonlar */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                    onClick={handleEdit}
+                    style={{
+                        ...styles.editButton,
+                        background: isEditHovered ? '#dbeafe' : 'transparent',
+                        color: isEditHovered ? '#2563eb' : '#9ca3af',
+                        transform: isEditHovered ? 'scale(1.1)' : 'scale(1)',
+                    }}
+                    onMouseEnter={() => setIsEditHovered(true)}
+                    onMouseLeave={() => setIsEditHovered(false)}
+                >
+                    ✏️
+                </button>
+
+                <button
+                    onClick={() => onDelete(expense.id)}
+                    style={{
+                        ...styles.deleteButton,
+                        background: isDeleteHovered ? '#fee2e2' : 'transparent',
+                        color: isDeleteHovered ? '#dc2626' : '#9ca3af',
+                        transform: isDeleteHovered ? 'scale(1.1)' : 'scale(1)',
+                    }}
+                    onMouseEnter={() => setIsDeleteHovered(true)}
+                    onMouseLeave={() => setIsDeleteHovered(false)}
+                >
+                    🗑️
+                </button>
+            </div>
         </div>
     );
 }
@@ -135,6 +159,19 @@ const styles = {
         margin: 0,
     },
     deleteButton: {
+        background: 'transparent',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px',
+        fontSize: '18px',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        color: '#9ca3af',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    editButton: {
         background: 'transparent',
         border: 'none',
         borderRadius: '8px',
