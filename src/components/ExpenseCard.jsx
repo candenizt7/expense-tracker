@@ -10,14 +10,22 @@ function ExpenseCard({ expense, onDelete }) {
     // Kategori bilgilerini al
     const getCategoryInfo = (category) => {
         const categories = {
-            yemek: { icon: '🍔', name: 'Yemek', color: '#f59e0b' },
-            ulaşım: { icon: '🚗', name: 'Ulaşım', color: '#3b82f6' },
-            fatura: { icon: '💡', name: 'Fatura', color: '#ef4444' },
-            eğlence: { icon: '🎮', name: 'Eğlence', color: '#8b5cf6' },
-            alışveriş: { icon: '🛒', name: 'Alışveriş', color: '#ec4899' },
-            sağlık: { icon: '💊', name: 'Sağlık', color: '#10b981' },
-            eğitim: { icon: '📚', name: 'Eğitim', color: '#6366f1' },
-            diğer: { icon: '💰', name: 'Diğer', color: '#6b7280' }
+            // Gider kategorileri
+            yemek: { icon: '🍔', name: 'Yemek', color: '#ef4444', type: 'gider' },
+            ulasim: { icon: '🚗', name: 'Ulaşım', color: '#f59e0b', type: 'gider' },
+            fatura: { icon: '💡', name: 'Fatura', color: '#dc2626', type: 'gider' },
+            eglence: { icon: '🎮', name: 'Eğlence', color: '#8b5cf6', type: 'gider' },
+            alisveris: { icon: '🛒', name: 'Alışveriş', color: '#ec4899', type: 'gider' },
+            saglik: { icon: '💊', name: 'Sağlık', color: '#06b6d4', type: 'gider' },
+            egitim: { icon: '📚', name: 'Eğitim', color: '#6366f1', type: 'gider' },
+            diger: { icon: '💰', name: 'Diğer', color: '#6b7280', type: 'gider' },
+
+            // Gelir kategorileri
+            maas: { icon: '💼', name: 'Maaş', color: '#10b981', type: 'gelir' },
+            freelance: { icon: '💻', name: 'Freelance', color: '#059669', type: 'gelir' },
+            yatirim: { icon: '📈', name: 'Yatırım', color: '#14b8a6', type: 'gelir' },
+            hediye: { icon: '🎁', name: 'Hediye', color: '#22c55e', type: 'gelir' },
+            'diger-gelir': { icon: '💸', name: 'Diğer Gelir', color: '#16a34a', type: 'gelir' },
         };
         return categories[category] || categories.diger;
     };
@@ -45,6 +53,8 @@ function ExpenseCard({ expense, onDelete }) {
         borderLeft: `4px solid ${categoryInfo.color}`
     };
 
+    const amountColor = categoryInfo.type === 'gelir' ? '#10b981' : '#ef4444';
+
     return (
         <div style={{
             ...cardStyle,
@@ -61,8 +71,8 @@ function ExpenseCard({ expense, onDelete }) {
                     <span style={styles.categoryIcon}>{categoryInfo.icon}</span>
                     <span style={styles.categoryName}>{categoryInfo.name}</span>
                 </div>
-                <div style={styles.amount}>
-                    {expense.amount.toFixed(2)} ₺
+                <div style={{ ...styles.amount, color: amountColor }}>
+                    {categoryInfo.type === 'gelir' ? '+' : '-'}{expense.amount.toFixed(2)} ₺
                 </div>
             </div>
 

@@ -6,10 +6,18 @@ function ExpenseForm({ expenseToEdit = null }) {
     const { addExpense, updateExpense } = useContext(ExpenseContext);
     const navigate = useNavigate();
 
-    const [amount, setAmount] = useState("");
-    const [description, setDescription] = useState("");
-    const [category, setCategory] = useState("yemek");
-    const [date, setDate] = useState("");
+    const [amount, setAmount] = useState(
+        expenseToEdit ? expenseToEdit.amount : ""
+    );
+    const [description, setDescription] = useState(
+        expenseToEdit ? expenseToEdit.description : ""
+    );
+    const [category, setCategory] = useState(
+        expenseToEdit ? expenseToEdit.category : "yemek"
+    );
+    const [date, setDate] = useState(
+        expenseToEdit ? expenseToEdit.date : ""
+    );
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -42,14 +50,6 @@ function ExpenseForm({ expenseToEdit = null }) {
         navigate("/");
     };
 
-    useEffect(() => {
-        if (expenseToEdit) {
-            setAmount(expenseToEdit.amount.toString());
-            setDescription(expenseToEdit.description);
-            setCategory(expenseToEdit.category);
-            setDate(expenseToEdit.date);
-        }
-    }, [expenseToEdit]);
 
     return (
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -74,14 +74,24 @@ function ExpenseForm({ expenseToEdit = null }) {
                     style={styles.select}
                     required
                 >
-                    <option value="yemek">🍔 Yemek</option>
-                    <option value="ulaşım">🚗 Ulaşım</option>
-                    <option value="fatura">💡 Fatura</option>
-                    <option value="eğlence">🎮 Eğlence</option>
-                    <option value="alışveriş">🛒 Alışveriş</option>
-                    <option value="sağlık">💊 Sağlık</option>
-                    <option value="eğitim">📚 Eğitim</option>
-                    <option value="diğer">💰 Diğer</option>
+                    <optgroup label="💸 Gider Kategorileri">
+                        <option value="yemek">🍔 Yemek</option>
+                        <option value="ulasim">🚗 Ulaşım</option>
+                        <option value="fatura">💡 Fatura</option>
+                        <option value="eglence">🎮 Eğlence</option>
+                        <option value="alisveris">🛒 Alışveriş</option>
+                        <option value="saglik">💊 Sağlık</option>
+                        <option value="egitim">📚 Eğitim</option>
+                        <option value="diger">💰 Diğer</option>
+                    </optgroup>
+
+                    <optgroup label="💵 Gelir Kategorileri">
+                        <option value="maas">💼 Maaş</option>
+                        <option value="freelance">💻 Freelance</option>
+                        <option value="yatirim">📈 Yatırım</option>
+                        <option value="hediye">🎁 Hediye</option>
+                        <option value="diger-gelir">💸 Diğer Gelir</option>
+                    </optgroup>
                 </select>
             </div>
 

@@ -26,65 +26,70 @@ function Expenses() {
     });
 
   return (
-  <div style={styles.container}>
-    <h1 style={styles.title}>Tüm Harcamalar</h1>
-    
-    {/* Filtreler */}
-    <div style={styles.filtersContainer}>
-      {/* Arama */}
-      <input
-        type="text"
-        placeholder="🔍 Harcama ara..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={styles.searchInput}
-      />
-      
-      {/* Kategori Filtresi */}
-      <select
-        value={categoryFilter}
-        onChange={(e) => setCategoryFilter(e.target.value)}
-        style={styles.select}
-      >
-        <option value="all">Tüm Kategoriler</option>
-        <option value="yemek">🍔 Yemek</option>
-        <option value="ulaşım">🚗 Ulaşım</option>
-        <option value="fatura">💡 Fatura</option>
-        <option value="eğlence">🎮 Eğlence</option>
-        <option value="alışveriş">🛒 Alışveriş</option>
-        <option value="sağlık">💊 Sağlık</option>
-        <option value="eğitim">📚 Eğitim</option>
-        <option value="diğer">💰 Diğer</option>
-      </select>
-      
-      {/* Sıralama */}
-      <select
-        value={sortBy}
-        onChange={(e) => setSortBy(e.target.value)}
-        style={styles.select}
-      >
-        <option value="date">📅 Tarihe Göre</option>
-        <option value="amount">💰 Tutara Göre</option>
-      </select>
+    <div style={styles.container}>
+      <h1 style={styles.title}>Tüm Harcamalar</h1>
+
+      {/* Filtreler */}
+      <div style={styles.filtersContainer}>
+        {/* Arama */}
+        <input
+          type="text"
+          placeholder="🔍 Harcama ara..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={styles.searchInput}
+        />
+
+        {/* Kategori Filtresi */}
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          style={styles.select}
+        >
+          <option value="all">Tüm Kategoriler</option>
+          <option value="yemek">🍔 Yemek</option>
+          <option value="ulasim">🚗 Ulaşım</option>
+          <option value="fatura">💡 Fatura</option>
+          <option value="eglence">🎮 Eğlence</option>
+          <option value="alisveris">🛒 Alışveriş</option>
+          <option value="saglik">💊 Sağlık</option>
+          <option value="egitim">📚 Eğitim</option>
+          <option value="diger">💰 Diğer</option>
+          <option value="maas">💼 Maaş</option>
+          <option value="freelance">💻 Freelance</option>
+          <option value="yatirim">📈 Yatırım</option>
+          <option value="hediye">🎁 Hediye</option>
+          <option value="diger-gelir">💸 Diğer Gelir</option>
+        </select>
+
+        {/* Sıralama */}
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          style={styles.select}
+        >
+          <option value="date">📅 Tarihe Göre</option>
+          <option value="amount">💰 Tutara Göre</option>
+        </select>
+      </div>
+
+      {/* Sonuç Sayısı */}
+      <p style={styles.resultCount}>
+        {filteredExpenses.length} harcama bulundu
+      </p>
+
+      {/* Harcama Listesi */}
+      <div style={styles.expenseList}>
+        {filteredExpenses.length === 0 ? (
+          <p style={styles.noResults}>Harcama bulunamadı.</p>
+        ) : (
+          filteredExpenses.map((expense) => (
+            <ExpenseCard key={expense.id} expense={expense} />
+          ))
+        )}
+      </div>
     </div>
-    
-    {/* Sonuç Sayısı */}
-    <p style={styles.resultCount}>
-      {filteredExpenses.length} harcama bulundu
-    </p>
-    
-    {/* Harcama Listesi */}
-    <div style={styles.expenseList}>
-      {filteredExpenses.length === 0 ? (
-        <p style={styles.noResults}>Harcama bulunamadı.</p>
-      ) : (
-        filteredExpenses.map((expense) => (
-          <ExpenseCard key={expense.id} expense={expense} />
-        ))
-      )}
-    </div>
-  </div>
-);
+  );
 }
 
 export default Expenses;

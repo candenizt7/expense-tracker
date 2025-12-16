@@ -5,6 +5,10 @@ import ExpenseCard from "../components/ExpenseCard";
 function Dashboard() {
   const { expenses, deleteExpense } = useContext(ExpenseContext);
 
+  // Gelir ve gider kategorileri
+  const gelirKategorileri = ['maas', 'freelance', 'yatirim', 'hediye', 'diger-gelir'];
+  const giderKategorileri = ['yemek', 'ulaşım', 'fatura', 'eğlence', 'alışveriş', 'sağlık', 'eğitim', 'diğer'];
+
   const handleDelete = (id) => {
     if (window.confirm("Bu harcamayı silmek istediğinize emin misiniz?")) {
       deleteExpense(id);
@@ -12,11 +16,18 @@ function Dashboard() {
     }
   };
 
-  // 1. Toplam Harcama
-  const totalExpense = expenses.reduce(
-    (total, expense) => total + expense.amount,
-    0
-  );
+  // Toplam gelir
+  const totalIncome = expenses
+    .filter(expense => gelirKategorileri.includes(expense.category))
+    .reduce((total, expense) => total + expense.amount, 0);
+
+  // Toplam gider
+  const totalExpense = expenses
+    .filter(expense => giderKategorileri.includes(expense.category))
+    .reduce((total, expense) => total + expense.amount, 0);
+
+  // Net (gelir - gider)
+  const netAmount = totalIncome - totalExpense;
 
   // 2. Bu ay
   const currentMonth = new Date().getMonth();
@@ -66,17 +77,57 @@ function Dashboard() {
     <div style={styles.container}>
       <h1 style={styles.title}>Dashboard</h1>
 
-      {/* Özet Kartları */}
       <div style={styles.statsContainer}>
-        {/* Toplam */}
-        <div style={styles.statCard}>
-          <div style={styles.statIcon}>💰</div>
+        {/* Toplam Gelir */}
+        <div style={{
+          ...styles.statCard,
+          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        }}>
+          <div style={styles.statIcon}>💵</div>
           <div style={styles.statInfo}>
-            <p style={styles.statLabel}>Toplam Harcama</p>
-            <p style={styles.statAmount}>{totalExpense.toFixed(2)} ₺</p>
-            <p style={styles.statCount}>{expenses.length} harcama</p>
+            <p style={styles.statLabel}>Toplam Gelir</p>
+            <p style={styles.statAmount}>+{totalIncome.toFixed(2)} ₺</p>
+            <p style={styles.statCount}>
+              {expenses.filter(e => gelirKategorileri.includes(e.category)).length} işlem
+            </p>
           </div>
         </div>
+
+        {/* Toplam Gider */}
+        <div style={{
+          ...styles.statCard,
+          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+        }}>
+          <div style={styles.statIcon}>💸</div>
+          <div style={styles.statInfo}>
+            <p style={styles.statLabel}>Toplam Gider</p>
+            <p style={styles.statAmount}>-{totalExpense.toFixed(2)} ₺</p>
+            <p style={styles.statCount}>
+              {expenses.filter(e => giderKategorileri.includes(e.category)).length} işlem
+            </p>
+          </div>
+        </div>
+
+        {/* Net Durum */}
+        <div style={{
+          ...styles.statCard,
+          background: netAmount >= 0
+            ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+            : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+        }}>
+          <div style={styles.statIcon}>{netAmount >= 0 ? '📈' : '📉'}</div>
+          <div style={styles.statInfo}>
+            <p style={styles.statLabel}>Net Durum</p>
+            <p style={styles.statAmount}>
+              {netAmount >= 0 ? '+' : ''}{netAmount.toFixed(2)} ₺
+            </p>
+            <p style={styles.statCount}>
+              {netAmount >= 0 ? 'Pozitif bakiye' : 'Negatif bakiye'}
+            </p>
+          </div>
+        </div>
+
+        {/* Bu Ay, Bu Hafta, Bugün kartları aynı kalıyor */}
 
         {/* Bu Ay */}
         <div style={styles.statCard}>

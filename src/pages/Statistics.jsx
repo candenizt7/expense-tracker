@@ -3,14 +3,37 @@ import { ExpenseContext } from "../context/ExpenseContext";
 
 function Statistics() {
   const { expenses } = useContext(ExpenseContext);
+  console.log('TÜM HARCAMALAR:', expenses);
+console.log('HARCAMA KATEGORİLERİ:', expenses.map(e => e.category));
 
   const totalExpense = expenses.reduce(
     (total, expense) => total + expense.amount,
     0
   );
 
-  // Kategorilere göre toplam
-  const categoryTotals = expenses.reduce((acc, expense) => {
+  // Gelir ve gider kategorileri
+  const gelirKategorileri = ['maas', 'freelance', 'yatirim', 'hediye', 'diger-gelir'];
+  const giderKategorileri = ['yemek', 'ulasim', 'fatura', 'eglence', 'alisveris', 'saglik', 'egitim', 'diger'];
+  console.log('Aranan gider kategorileri:', giderKategorileri);
+
+  // Gelir ve gider ayrı hesapla
+  const incomeExpenses = expenses.filter(e => gelirKategorileri.includes(e.category));
+  const expenseExpenses = expenses.filter(e => giderKategorileri.includes(e.category));
+
+  const totalIncome = incomeExpenses.reduce((t, e) => t + e.amount, 0);
+  const totalExpenseAmount = expenseExpenses.reduce((t, e) => t + e.amount, 0);
+
+  // Gelir kategorileri için toplam
+  const incomeCategoryTotals = incomeExpenses.reduce((acc, expense) => {
+    if (!acc[expense.category]) {
+      acc[expense.category] = 0;
+    }
+    acc[expense.category] += expense.amount;
+    return acc;
+  }, {});
+
+  // Gider kategorileri için toplam
+  const expenseCategoryTotals = expenseExpenses.reduce((acc, expense) => {
     if (!acc[expense.category]) {
       acc[expense.category] = 0;
     }
@@ -20,33 +43,58 @@ function Statistics() {
 
   // Kategori bilgileri
   const categories = {
-    yemek: { icon: '🍔', name: 'Yemek', color: '#f59e0b' },
-    ulaşım: { icon: '🚗', name: 'Ulaşım', color: '#3b82f6' },
-    fatura: { icon: '💡', name: 'Fatura', color: '#ef4444' },
-    eğlence: { icon: '🎮', name: 'Eğlence', color: '#8b5cf6' },
-    alışveriş: { icon: '🛒', name: 'Alışveriş', color: '#ec4899' },
-    sağlık: { icon: '💊', name: 'Sağlık', color: '#10b981' },
-    eğitim: { icon: '📚', name: 'Eğitim', color: '#6366f1' },
-    diğer: { icon: '💰', name: 'Diğer', color: '#6b7280' }
+    //Gider kategorileri
+    yemek: { icon: '🍔', name: 'Yemek', color: '#f59e0b', type: 'gider' },
+    ulaşım: { icon: '🚗', name: 'Ulaşım', color: '#3b82f6', type: 'gider' },
+    fatura: { icon: '💡', name: 'Fatura', color: '#ef4444', type: 'gider' },
+    eğlence: { icon: '🎮', name: 'Eğlence', color: '#8b5cf6', type: 'gider' },
+    alışveriş: { icon: '🛒', name: 'Alışveriş', color: '#ec4899', type: 'gider' },
+    sağlık: { icon: '💊', name: 'Sağlık', color: '#10b981', type: 'gider' },
+    eğitim: { icon: '📚', name: 'Eğitim', color: '#6366f1', type: 'gider' },
+    diğer: { icon: '💰', name: 'Diğer', color: '#6b7280', type: 'gider' },
+
+    //Gelir kategorileri
+    maas: { icon: '💼', name: 'Maaş', color: '#10b981', type: 'gelir' },
+    freelance: { icon: '💻', name: 'Freelance', color: '#059669', type: 'gelir' },
+    yatirim: { icon: '📈', name: 'Yatırım', color: '#14b8a6', type: 'gelir' },
+    hediye: { icon: '🎁', name: 'Hediye', color: '#22c55e', type: 'gelir' },
+    'diger-gelir': { icon: '💸', name: 'Diğer Gelir', color: '#16a34a', type: 'gelir' },
   };
 
-  const sortedCategories = Object.entries(categoryTotals)
-  .map(([category, amount]) => {
-    const categoryInfo = categories[category] || categories.diger;
-    const percentage = totalExpense > 0 ? (amount / totalExpense) * 100 : 0;
-    
-    return {
-      category,
-      amount,
-      percentage,
-      ...categoryInfo
-    };
-  })
-  .sort((a, b) => b.amount - a.amount);
+  // Gelir kategorileri sıralı
+  const sortedIncomeCategories = Object.entries(incomeCategoryTotals)
+    .map(([category, amount]) => {
+      const categoryInfo = categories[category] || categories.diger;
+      const percentage = totalIncome > 0 ? (amount / totalIncome) * 100 : 0;
+
+      return {
+        category,
+        amount,
+        percentage,
+        ...categoryInfo
+      };
+    })
+    .sort((a, b) => b.amount - a.amount);
+
+  // Gider kategorileri sıralı
+  const sortedExpenseCategories = Object.entries(expenseCategoryTotals)
+    .map(([category, amount]) => {
+      const categoryInfo = categories[category] || categories.diger;
+      const percentage = totalExpenseAmount > 0 ? (amount / totalExpenseAmount) * 100 : 0;
+
+      return {
+        category,
+        amount,
+        percentage,
+        ...categoryInfo
+      };
+    })
+    .sort((a, b) => b.amount - a.amount);
 
 
   // En çok harcanan kategori
-  const topCategory = sortedCategories[0];
+  const topIncomeCategory = sortedIncomeCategories[0];
+  const topExpenseCategory = sortedExpenseCategories[0];
 
   return (
     <div style={styles.container}>
@@ -56,28 +104,69 @@ function Statistics() {
         <p style={styles.noData}>Henüz harcama yok. İstatistik gösterilemez.</p>
       ) : (
         <>
-          {/* Toplam Özet */}
-          <div style={styles.totalCard}>
-            <div style={styles.totalIcon}>💰</div>
+          {/* Toplam Gelir */}
+          <div style={{
+            ...styles.totalCard,
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          }}>
+            <div style={styles.totalIcon}>💵</div>
             <div>
-              <p style={styles.totalLabel}>Toplam Harcama</p>
-              <p style={styles.totalAmount}>{totalExpense.toFixed(2)} ₺</p>
-              <p style={styles.totalCount}>{expenses.length} harcama</p>
+              <p style={styles.totalLabel}>Toplam Gelir</p>
+              <p style={styles.totalAmount}>+{totalIncome.toFixed(2)} ₺</p>
+              <p style={styles.totalCount}>{incomeExpenses.length} işlem</p>
             </div>
           </div>
 
-          {/* En Çok Harcanan Kategori */}
-          {topCategory && topCategory.percentage !== undefined && (
-            <div style={styles.topCategoryCard}>
-              <h2 style={styles.sectionTitle}>En Çok Harcanan Kategori</h2>
+          {/* Toplam Gider */}
+          <div style={{
+            ...styles.totalCard,
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+          }}>
+            <div style={styles.totalIcon}>💸</div>
+            <div>
+              <p style={styles.totalLabel}>Toplam Gider</p>
+              <p style={styles.totalAmount}>-{totalExpenseAmount.toFixed(2)} ₺</p>
+              <p style={styles.totalCount}>{expenseExpenses.length} işlem</p>
+            </div>
+          </div>
+
+          {/* En Çok Gelir */}
+          {topIncomeCategory && (
+            <div style={{
+              ...styles.topCategoryCard,
+              borderColor: '#10b981',
+            }}>
+              <h2 style={styles.sectionTitle}>💵 En Çok Gelir Getiren</h2>
               <div style={styles.topCategoryContent}>
-                <span style={styles.topCategoryIcon}>{topCategory.icon}</span>
+                <span style={styles.topCategoryIcon}>{topIncomeCategory.icon}</span>
                 <div>
-                  <p style={styles.topCategoryName}>{topCategory.name}</p>
-                  <p style={styles.topCategoryAmount}>
-                    {topCategory.amount?.toFixed(2) || '0.00'} ₺
+                  <p style={styles.topCategoryName}>{topIncomeCategory.name}</p>
+                  <p style={{ ...styles.topCategoryAmount, color: '#10b981' }}>
+                    +{topIncomeCategory.amount?.toFixed(2) || '0.00'} ₺
                     <span style={styles.topCategoryPercentage}>
-                      ({topCategory.percentage?.toFixed(1) || '0'}%)
+                      ({topIncomeCategory.percentage?.toFixed(1) || '0'}%)
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* En Çok Gider */}
+          {topExpenseCategory && (
+            <div style={{
+              ...styles.topCategoryCard,
+              borderColor: '#ef4444',
+            }}>
+              <h2 style={styles.sectionTitle}>💸 En Çok Gider Yapılan</h2>
+              <div style={styles.topCategoryContent}>
+                <span style={styles.topCategoryIcon}>{topExpenseCategory.icon}</span>
+                <div>
+                  <p style={styles.topCategoryName}>{topExpenseCategory.name}</p>
+                  <p style={{ ...styles.topCategoryAmount, color: '#ef4444' }}>
+                    -{topExpenseCategory.amount?.toFixed(2) || '0.00'} ₺
+                    <span style={styles.topCategoryPercentage}>
+                      ({topExpenseCategory.percentage?.toFixed(1) || '0'}%)
                     </span>
                   </p>
                 </div>
@@ -87,34 +176,76 @@ function Statistics() {
 
           {/* Kategori Listesi */}
           <h2 style={styles.sectionTitle}>Kategoriye Göre Harcamalar</h2>
+          {/* Gelir Kategorileri */}
+          <h2 style={styles.sectionTitle}>💵 Gelir Kategorileri</h2>
           <div style={styles.categoriesGrid}>
-            {sortedCategories.map((cat) => (
-              <div key={cat.category} style={styles.categoryCard}>
-                <div style={styles.categoryHeader}>
-                  <div style={styles.categoryInfo}>
-                    <span style={styles.categoryIcon}>{cat.icon || '💰'}</span>
-                    <span style={styles.categoryName}>{cat.name || 'Kategori'}</span>
+            {sortedIncomeCategories.length === 0 ? (
+              <p style={styles.noData}>Henüz gelir kaydı yok.</p>
+            ) : (
+              sortedIncomeCategories.map((cat) => (
+                <div key={cat.category} style={styles.categoryCard}>
+                  <div style={styles.categoryHeader}>
+                    <div style={styles.categoryInfo}>
+                      <span style={styles.categoryIcon}>{cat.icon || '💰'}</span>
+                      <span style={styles.categoryName}>{cat.name || 'Kategori'}</span>
+                    </div>
+                    <span style={styles.categoryPercentage}>
+                      {cat.percentage?.toFixed(1) || '0'}%
+                    </span>
                   </div>
-                  <span style={styles.categoryPercentage}>
-                    {cat.percentage?.toFixed(1) || '0'}%
-                  </span>
-                </div>
 
-                <p style={styles.categoryAmount}>
-                  {cat.amount?.toFixed(2) || '0.00'} ₺
-                </p>
+                  <p style={{ ...styles.categoryAmount, color: '#10b981' }}>
+                    +{cat.amount?.toFixed(2) || '0.00'} ₺
+                  </p>
 
-                <div style={styles.progressBar}>
-                  <div
-                    style={{
-                      ...styles.progressFill,
-                      width: `${cat.percentage || 0}%`,
-                      background: cat.color || '#6b7280'
-                    }}
-                  />
+                  <div style={styles.progressBar}>
+                    <div
+                      style={{
+                        ...styles.progressFill,
+                        width: `${cat.percentage || 0}%`,
+                        background: cat.color || '#10b981'
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
+          </div>
+
+          {/* Gider Kategorileri */}
+          <h2 style={styles.sectionTitle}>💸 Gider Kategorileri</h2>
+          <div style={styles.categoriesGrid}>
+            {sortedExpenseCategories.length === 0 ? (
+              <p style={styles.noData}>Henüz gider kaydı yok.</p>
+            ) : (
+              sortedExpenseCategories.map((cat) => (
+                <div key={cat.category} style={styles.categoryCard}>
+                  <div style={styles.categoryHeader}>
+                    <div style={styles.categoryInfo}>
+                      <span style={styles.categoryIcon}>{cat.icon || '💰'}</span>
+                      <span style={styles.categoryName}>{cat.name || 'Kategori'}</span>
+                    </div>
+                    <span style={styles.categoryPercentage}>
+                      {cat.percentage?.toFixed(1) || '0'}%
+                    </span>
+                  </div>
+
+                  <p style={{ ...styles.categoryAmount, color: '#ef4444' }}>
+                    -{cat.amount?.toFixed(2) || '0.00'} ₺
+                  </p>
+
+                  <div style={styles.progressBar}>
+                    <div
+                      style={{
+                        ...styles.progressFill,
+                        width: `${cat.percentage || 0}%`,
+                        background: cat.color || '#ef4444'
+                      }}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </>
       )}
